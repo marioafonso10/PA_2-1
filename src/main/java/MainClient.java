@@ -1,9 +1,10 @@
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
 public class MainClient {
 
-    public static void main ( String[] args ) throws IOException {
+    public static void main ( String[] args ) throws IOException, NoSuchAlgorithmException {
         Scanner usrInput = new Scanner( System.in );
         System.out.println( "Write your username" );
         String userName = usrInput.nextLine( );

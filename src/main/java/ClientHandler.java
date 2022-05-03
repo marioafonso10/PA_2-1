@@ -10,14 +10,16 @@ public class ClientHandler implements Runnable {
     public static final ArrayList<ClientHandler> clientHandlers = new ArrayList<>( );
     public static final ArrayList<String> userNames = new ArrayList<>( );
     public static final ArrayList<PublicKey> publicKeys = new ArrayList<>( );
-
+    private final Protocol protocol;
     private final ObjectInputStream in;
     private final ObjectOutputStream out;
     private final String userName;
+
     private final Socket server;
     private final PublicKey publicKey;
 
-    public ClientHandler ( Socket server ) throws IOException, ClassNotFoundException {
+    public ClientHandler(Protocol protocol, Socket server) throws IOException, ClassNotFoundException {
+        this.protocol = protocol;
         this.server = server;
         this.in = new ObjectInputStream( server.getInputStream( ) );
         this.out = new ObjectOutputStream( server.getOutputStream( ) );
@@ -89,4 +91,6 @@ public class ClientHandler implements Runnable {
     public String getUserName () {
         return userName;
     }
+
+
 }

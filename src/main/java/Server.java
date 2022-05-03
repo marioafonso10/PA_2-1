@@ -5,9 +5,11 @@ import java.net.Socket;
 public class Server implements Runnable {
 
     private final ServerSocket server;
+    private final Protocol protocol;
 
     public Server ( int port ) throws IOException {
         server = new ServerSocket( port );
+
     }
 
     @Override
@@ -15,7 +17,8 @@ public class Server implements Runnable {
         try {
             while ( ! server.isClosed( ) ) {
                 Socket client = server.accept( );
-                ClientHandler clientHandler = new ClientHandler( client );
+
+                ClientHandler clientHandler = new ClientHandler(protocol, client );
                 Thread thread = new Thread( clientHandler );
                 thread.start( );
             }

@@ -2,9 +2,10 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.io.IOException;
 import java.security.*;
 
-public class RSA {
+public class RSA extends Protocol {
 
     private PrivateKey privateKey;
     private PublicKey publicKey;
@@ -20,20 +21,23 @@ public class RSA {
         this.privateKey = keyPair.getPrivate( );
         this.publicKey = keyPair.getPublic( );
     }
-
-    public byte[] encrypt ( byte[] message , PublicKey publicKey ) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-        Cipher cipher = Cipher.getInstance( "RSA" );
+    @Override
+    public byte[] encrypt ( byte[] message , PublicKey publicKey , String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
+        String protocol= "RSA";
+        Cipher cipher = Cipher.getInstance( protocol );
         cipher.init( Cipher.ENCRYPT_MODE , publicKey );
         return cipher.doFinal( message );
     }
-
-    public byte[] decrypt ( byte[] message ) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    @Override
+    public byte[] decrypt ( byte[] message, String key ) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,IOException {
         Cipher cipher = Cipher.getInstance( "RSA" );
         cipher.init( Cipher.DECRYPT_MODE , this.privateKey );
         return cipher.doFinal( message );
     }
-
+    @Override
     public PublicKey getPublicKey () {
         return publicKey;
     }
+
+
 }

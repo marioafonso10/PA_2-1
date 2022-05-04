@@ -14,5 +14,4 @@ abstract class Protocol {
 
     public abstract PublicKey getPublicKey();
 
-
 }

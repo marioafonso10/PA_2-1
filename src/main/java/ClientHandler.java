@@ -9,6 +9,7 @@ public class ClientHandler implements Runnable {
 
     public static final ArrayList<ClientHandler> clientHandlers = new ArrayList<>( );
     public static final ArrayList<String> userNames = new ArrayList<>( );
+
     public static final ArrayList<PublicKey> publicKeys = new ArrayList<>( );
     private final Protocol protocol;
     private final ObjectInputStream in;
@@ -86,6 +87,13 @@ public class ClientHandler implements Runnable {
                 }
             }
         }
+    }
+
+    public void specificMessage(String message, ArrayList<Client> clients) throws IOException {
+        for (Client c:clients) {
+            c.sendOneMessage(c.getProtocol(),message,c);
+        }
+
     }
 
     public String getUserName () {

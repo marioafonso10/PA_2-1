@@ -18,10 +18,13 @@ public class AES extends Protocol{
 
     private static final int ENCRYPT_MODE = 1;
     private static final int DECRYPT_MODE = 2;
+    private String protocolo="";// como aceder a tamanho da chave
+
     @Override
     public byte[] encrypt(byte[] message,   PublicKey publicKey,String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
         Cipher cipher = Cipher.getInstance( "AES" );
         SecretKeySpec secretKeySpec = new SecretKeySpec( key.getBytes( StandardCharsets.UTF_8 ) , "AES" );
+
         cipher.init( Cipher.ENCRYPT_MODE , secretKeySpec );
         ArrayList<byte[]> textSplits = splitText( message , 15 , AES.ENCRYPT_MODE );
         ByteArrayOutputStream output = new ByteArrayOutputStream( );
@@ -80,5 +83,10 @@ public class AES extends Protocol{
     @Override
     public PublicKey getPublicKey() {
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return protocolo;
     }
 }

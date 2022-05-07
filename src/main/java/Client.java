@@ -8,16 +8,20 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import static java.lang.Integer.getInteger;
 
 public class Client {
 
     private static final ArrayList<PublicKey> publicKeys = new ArrayList<>( );
     private static final ArrayList<String> userNames = new ArrayList<>( );
     private final Socket client;
-    private final Socket protocolos;
+    private PrivateKey privateKey;
+    private PublicKey publicKey;
     private final ObjectInputStream in;
     private final ObjectOutputStream out;
     private final String userName;
@@ -32,9 +36,10 @@ public class Client {
         return userName;
     }
 
-    public Client (String host , int port , String userName, Protocol protocol, int prot_port) throws IOException, NoSuchAlgorithmException {
+    public Client (String host , int port , String userName, Protocol protocol) throws IOException, NoSuchAlgorithmException {
         client = new Socket( host , port );
-        protocolos= new Socket(host, prot_port);
+        this.privateKey = protocol.generateKeyPair();
+        this.publicKey= protocol.getPublicKey();
         this.userName = userName;
         this.protocol=protocol;
         out = new ObjectOutputStream( client.getOutputStream( ) );
@@ -43,23 +48,27 @@ public class Client {
         out.writeObject( protocol.getPublicKey( ) );
     }
 
+
     public void sendMessages (Protocol protocol) throws IOException {
         while ( client.isConnected( ) ) {
             Scanner usrInput = new Scanner( System.in );
             String message = usrInput.nextLine( );
+
             try {
                 for ( int i = 0; i < publicKeys.size( ); i++ ) {
-                    if ( ! userName.equals( userNames.get( i ) ) ) {
+                    if (  userName.equals( userNames.get( i ) ) ) {
                         String key = null;
-                        byte[] messageEncrypted = protocol.encrypt( message.getBytes( StandardCharsets.UTF_8 ) , publicKeys.get( i ),key   );
-                        ArrayList<Object> messageWithReceiver = new ArrayList<>( 2 );
-                        messageWithReceiver.add( userNames.get( i ) );
-                        messageWithReceiver.add( messageEncrypted );
+                        byte[] messageEncrypted = protocol.encrypt( message.getBytes( StandardCharsets.UTF_8 ) ,privateKey, publicKey ,key );
+                        ArrayList<Object> messageWithReceiver = new ArrayList<>( 3 );
+                        messageWithReceiver.add(0,"message");
+                        messageWithReceiver.add( 1,userNames.get( i ) );
+                        messageWithReceiver.add(2, messageEncrypted );
                         out.writeObject( messageWithReceiver );
                         //out.writeObject(protocol);
-                    }
+
                 }
-            } catch ( IOException e ) {
+            }
+            }catch ( IOException e ) {
                 closeConnection( );
                 break;
             } catch ( NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException | InvalidKeyException e ) {
@@ -74,7 +83,7 @@ public class Client {
                 for ( int i = 0; i < publicKeys.size( ); i++ ) {
                     if ( ! user.getUserName().equals( userNames.get( i ) ) ) {
                         String key = null;
-                        byte[] messageEncrypted = protocol.encrypt( data.getBytes( StandardCharsets.UTF_8 ) , publicKeys.get( i ),key   );
+                        byte[] messageEncrypted = protocol.encrypt( data.getBytes( StandardCharsets.UTF_8 ) ,privateKey, publicKeys.get( i ), key   );
                         ArrayList<Object> messageWithReceiver = new ArrayList<>( 2 );
                         messageWithReceiver.add( userNames.get( i ) );
                         messageWithReceiver.add( messageEncrypted );
@@ -93,11 +102,6 @@ public class Client {
         }
     }
 
-    public void sendProtocol(String dados) throws IOException {
-        while(protocolos.isConnected()){
-            out.writeObject(dados);
-        }
-    }
 
     public void readMessages (Protocol protocol) {
         new Thread( () -> {
@@ -120,7 +124,7 @@ public class Client {
                         ArrayList<Object> messageWithUserName = (ArrayList<Object>) message;
                         String key = null ;
                         String userName = (String) messageWithUserName.get( 0 );
-                        String messageDecrypted = new String( protocol.decrypt( (byte[]) messageWithUserName.get( 1 ), key )   );
+                        String messageDecrypted = new String( protocol.decrypt( (byte[]) messageWithUserName.get( 1 ),key, privateKey,publicKey )   );
                         System.out.println( userName + ": " + messageDecrypted );
                     }
                 } catch ( IOException | ClassNotFoundException e ) {

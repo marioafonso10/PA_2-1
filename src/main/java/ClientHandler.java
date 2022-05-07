@@ -73,7 +73,7 @@ public class ClientHandler implements Runnable {
         out.close( );
     }
 
-    public void broadcastMessage ( String userNameReceived , byte[] message ) throws IOException {
+    public void broadcastMessage ( String userNameReceived , byte[] message ) throws IOException {// TODO: modificar para receber array e mandar mensagem para todos encriptada segundo o seu Protocolo
         for ( ClientHandler client : clientHandlers ) {
             if ( client.getUserName( ).equals( userNameReceived ) ) {
                 try {
@@ -88,13 +88,12 @@ public class ClientHandler implements Runnable {
             }
         }
     }
-
-    public void specificMessage(String message, ArrayList<Client> clients) throws IOException {
-        for (Client c:clients) {
-            c.sendOneMessage(c.getProtocol(),message,c);
-        }
+    public void groupMessage(){ //TODO:Criar metodo que recebe so recebe mensagem e envia para o grupo de pessoas nela indicado
 
     }
+
+
+
 
     public String getUserName () {
         return userName;

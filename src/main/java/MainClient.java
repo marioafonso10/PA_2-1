@@ -22,7 +22,7 @@ public class MainClient {
                     System.out.println("AES");
                     Protocol AES = new AES();
                     System.out.println (AES) ;
-                    Client client1 = new Client( "127.0.0.1" , 8000 , userName ,AES,8001);
+                    Client client1 = new Client( "127.0.0.1" , 8000 , userName ,AES);
 
                     String dados=  client1.getUserName() + "XXXX" + AES ;
 
@@ -34,7 +34,7 @@ public class MainClient {
                     escolha= true;
                     System.out.println("2DES");
                     Protocol doisDes = new doisDes();
-                    Client client2 = new Client( "127.0.0.1" , 8000 , userName ,doisDes,8001);
+                    Client client2 = new Client( "127.0.0.1" , 8000 , userName ,doisDes);
                     client2.readMessages(doisDes );
                     client2.sendMessages( doisDes);
                     break;
@@ -42,7 +42,7 @@ public class MainClient {
                     escolha= true;
                     System.out.println("3DES");
                     Protocol tresDes = new tresDes();
-                    Client client3 = new Client( "127.0.0.1" , 8000 , userName ,tresDes,8001);
+                    Client client3 = new Client( "127.0.0.1" , 8000 , userName ,tresDes);
                     client3.readMessages( tresDes);
                     client3.sendMessages(tresDes );
                     break;
@@ -50,7 +50,7 @@ public class MainClient {
                     escolha= true;
                     System.out.println("RSA");
                     Protocol RSA = new RSA();
-                    Client client4 = new Client( "127.0.0.1" , 8000 , userName ,RSA ,8001);
+                    Client client4 = new Client( "127.0.0.1" , 8000 , userName ,RSA );
                     client4.readMessages(RSA );
                     client4.sendMessages(RSA );
                     break;

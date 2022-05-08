@@ -21,6 +21,11 @@ public class Client {
     private static final ArrayList<String> userNames = new ArrayList<>( );
     private final Socket client;
     private PrivateKey privateKey;
+
+    public PublicKey getPublicKey() {
+        return publicKey;
+    }
+
     private PublicKey publicKey;
     private final ObjectInputStream in;
     private final ObjectOutputStream out;
@@ -49,7 +54,16 @@ public class Client {
     }
 
 
-    public void sendMessages (Protocol protocol) throws IOException {
+    public void Handshake( ArrayList<Object> setup_protocolos) throws IOException {//TODO: completar funcionamento do handshake na main do cliente ie: depois da escolha de protocolos executar função para mandar para o server
+        System.out.println("CLIENT_HELLO");
+        ArrayList<Object> message = new ArrayList<>( 3 );
+        message.add(0,"handshake");
+        message.add( 1,userName );
+        message.add(2,setup_protocolos);
+        out.writeObject( message );
+    }
+
+    public void sendMessages () throws IOException {
         while ( client.isConnected( ) ) {
             Scanner usrInput = new Scanner( System.in );
             String message = usrInput.nextLine( );
@@ -77,13 +91,13 @@ public class Client {
         }
     }
 
-    public void sendOneMessage(Protocol protocol, String data, Client user) throws IOException {
+    public void sendOneMessage( byte[] data, Client user) throws IOException {
         if ( client.isConnected( ) ) {
             try {
                 for ( int i = 0; i < publicKeys.size( ); i++ ) {
                     if ( ! user.getUserName().equals( userNames.get( i ) ) ) {
                         String key = null;
-                        byte[] messageEncrypted = protocol.encrypt( data.getBytes( StandardCharsets.UTF_8 ) ,privateKey, publicKeys.get( i ), key   );
+                        byte[] messageEncrypted = protocol.encrypt( data ,privateKey, publicKeys.get( i ), key   );
                         ArrayList<Object> messageWithReceiver = new ArrayList<>( 2 );
                         messageWithReceiver.add( userNames.get( i ) );
                         messageWithReceiver.add( messageEncrypted );
@@ -103,43 +117,85 @@ public class Client {
     }
 
 
-    public void readMessages (Protocol protocol) {
-        new Thread( () -> {
-            while ( client.isConnected( ) ) {
+    public void readMessages () {
+        new Thread(() -> {
+            while (client.isConnected()) {
                 try {
-                    Object message = in.readObject( );
-                    if ( message instanceof String ) {
-                        if ( message.equals( "UPDATE_PUBLIC_KEYS" ) ) {
-                            int numberOfClients = (int) in.readObject( );
-                            publicKeys.clear( );
-                            userNames.clear( );
-                            for ( int i = 0; i < numberOfClients; i++ ) {
-                                PublicKey publicKey = (PublicKey) in.readObject( );
-                                publicKeys.add( publicKey );
-                                String userName = (String) in.readObject( );
-                                userNames.add( userName );
+                    Object message = in.readObject();
+                    if (message instanceof String) {
+                        if (message.equals("UPDATE_PUBLIC_KEYS")) {
+                            int numberOfClients = (int) in.readObject();
+                            publicKeys.clear();
+                            userNames.clear();
+                            for (int i = 0; i < numberOfClients; i++) {
+                                PublicKey publicKey = (PublicKey) in.readObject();
+                                publicKeys.add(publicKey);
+                                String userName = (String) in.readObject();
+                                userNames.add(userName);
                             }
                         }
                     } else {
                         ArrayList<Object> messageWithUserName = (ArrayList<Object>) message;
-                        String key = null ;
-                        String userName = (String) messageWithUserName.get( 0 );
-                        String messageDecrypted = new String( protocol.decrypt( (byte[]) messageWithUserName.get( 1 ),key, privateKey,publicKey )   );
-                        System.out.println( userName + ": " + messageDecrypted );
+                        String key = null;
+                        String userName = (String) messageWithUserName.get(0);
+                        String messageDecrypted = new String(protocol.decrypt((byte[]) messageWithUserName.get(1), key, privateKey, publicKey));
+                        System.out.println(userName + ": " + messageDecrypted);
                     }
-                } catch ( IOException | ClassNotFoundException e ) {
+                } catch (IOException | ClassNotFoundException e) {
                     try {
-                        closeConnection( );
-                    } catch ( IOException ex ) {
-                        ex.printStackTrace( );
+                        closeConnection();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
                     }
                     break;
-                } catch ( NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e ) {
-                    e.printStackTrace( );
+                } catch (NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e) {
+                    e.printStackTrace();
                 }
             }
-        } ).start( );
+        }).start();
     }
+    
+    public void readMessage(byte[] message){
+            new Thread( () -> {
+                while ( client.isConnected( ) ) {
+                    try {
+                        {
+                            String key = null ;
+                            String userName = getUserName();
+                            String messageDecrypted = new String( protocol.decrypt( message,key, privateKey,publicKey )   );
+                            //System.out.println( userName + ": " + messageDecrypted );
+                            ArrayList <Client> destinatarios= groupMessageAnalizer(message);
+                            if(!destinatarios.isEmpty()){
+                                //TODO:envia para x destinatarios
+                                for (Client z:destinatarios) {
+                                    z.sendOneMessage(message,z);
+                                }
+                            }
+                            else{
+                                // broadcast message
+                            }
+                            
+                        }
+                    } catch ( IOException  e ) {
+                        try {
+                            closeConnection( );
+                        } catch ( IOException ex ) {
+                            ex.printStackTrace( );
+                        }
+                        break;
+                    } catch ( NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e ) {
+                        e.printStackTrace( );
+                    }
+                }
+            } ).start( );
+        }
+        public ArrayList <Client> groupMessageAnalizer(byte[] message){
+        ArrayList <Client> clientes = null;
+            if( String.valueOf(message[0])=="@"){
+                // percorrer mensagem e ler os varios destinatarios para quem vai ser direcionada a mensagem 
+            }
+            return clientes;
+        }
 
     private void closeConnection () throws IOException {
         client.close( );

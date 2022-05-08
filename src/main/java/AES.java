@@ -30,7 +30,6 @@ public class AES extends Protocol{
 
 
 
-
     @Override
     public byte[] encrypt(byte[] message ,PrivateKey privateKey, PublicKey publicKey , String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
         Cipher cipher = Cipher.getInstance( "AES" );

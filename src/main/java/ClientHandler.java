@@ -1,7 +1,13 @@
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
 
@@ -11,7 +17,7 @@ public class ClientHandler implements Runnable {
     public static final ArrayList<String> userNames = new ArrayList<>( );
 
     public static final ArrayList<PublicKey> publicKeys = new ArrayList<>( );
-    private final Protocol protocol;
+   private ArrayList < Client> clients;
     private final ObjectInputStream in;
     private final ObjectOutputStream out;
     private final String userName;
@@ -19,8 +25,8 @@ public class ClientHandler implements Runnable {
     private final Socket server;
     private final PublicKey publicKey;
 
-    public ClientHandler(Protocol protocol, Socket server) throws IOException, ClassNotFoundException {
-        this.protocol = protocol;
+    public ClientHandler(ArrayList <Client> clients, Socket server) throws IOException, ClassNotFoundException {
+        this.clients=clients;
         this.server = server;
         this.in = new ObjectInputStream( server.getInputStream( ) );
         this.out = new ObjectOutputStream( server.getOutputStream( ) );
@@ -49,9 +55,21 @@ public class ClientHandler implements Runnable {
         while ( server.isConnected( ) ) {
             try {
                 ArrayList<Object> messageWithReceiver = (ArrayList<Object>) in.readObject( );
-                String userNameReceived = (String) messageWithReceiver.get( 0 );
-                byte[] message = (byte[]) messageWithReceiver.get( 1 );
-                broadcastMessage( userNameReceived , message );
+                String userNameReceived = (String) messageWithReceiver.get( 1 );
+                if(messageWithReceiver.get(0) =="handshake"){
+                    //cirar novo cliente com dados inseridos
+                }
+                else{
+
+                    byte[] message= decryptMessage(messageWithReceiver);
+                    // criar função que lê a mensagem e redireciona para os destinatários
+                    for (Client x:clients) {
+
+                    }
+
+                    broadcastMessage( userNameReceived , message );
+                }
+
             } catch ( IOException | ClassNotFoundException e ) {
                 try {
                     removeClient( this );
@@ -60,8 +78,24 @@ public class ClientHandler implements Runnable {
                     ex.printStackTrace( );
                 }
                 e.printStackTrace( );
+            } catch (NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e) {
+                e.printStackTrace();
             }
         }
+    }
+
+    
+
+    public byte[] decryptMessage(ArrayList<Object> messageWithReceiver) throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, IOException, InvalidKeyException {
+        byte[] message = (byte[]) messageWithReceiver.get( 2 );
+        for (Client c:clients) {
+            if(messageWithReceiver.get(1)== c.getUserName()){
+                PrivateKey privateKey= null;
+                String key=null;
+                message =c.getProtocol().decrypt(message,key,privateKey,c.getPublicKey());//TODO : melhorar maneira de aceder aos  ecnrypt de cada protocolo
+            }
+        }
+        return message;
     }
 
     private void removeClient ( ClientHandler client ) throws IOException {
@@ -89,6 +123,9 @@ public class ClientHandler implements Runnable {
         }
     }
     public void groupMessage(){ //TODO:Criar metodo que recebe so recebe mensagem e envia para o grupo de pessoas nela indicado
+
+    }
+    public void handshakeConfirm(){
 
     }
 

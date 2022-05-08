@@ -26,33 +26,33 @@ public class MainClient {
 
                     String dados=  client1.getUserName() + "XXXX" + AES ;
 
-                    client1.sendProtocol(dados);
-                    client1.readMessages(AES );
-                    client1.sendMessages(AES);
+                   // client1.sendProtocol(dados);
+                    client1.readMessages();
+                    client1.sendMessages();
                     break;
                 case "2":
                     escolha= true;
                     System.out.println("2DES");
                     Protocol doisDes = new doisDes();
                     Client client2 = new Client( "127.0.0.1" , 8000 , userName ,doisDes);
-                    client2.readMessages(doisDes );
-                    client2.sendMessages( doisDes);
+                    client2.readMessages();
+                    client2.sendMessages( );
                     break;
                 case "3":
                     escolha= true;
                     System.out.println("3DES");
                     Protocol tresDes = new tresDes();
                     Client client3 = new Client( "127.0.0.1" , 8000 , userName ,tresDes);
-                    client3.readMessages( tresDes);
-                    client3.sendMessages(tresDes );
+                    client3.readMessages( );
+                    client3.sendMessages( );
                     break;
                 case "4":
                     escolha= true;
                     System.out.println("RSA");
                     Protocol RSA = new RSA();
                     Client client4 = new Client( "127.0.0.1" , 8000 , userName ,RSA );
-                    client4.readMessages(RSA );
-                    client4.sendMessages(RSA );
+                    client4.readMessages( );
+                    client4.sendMessages( );
                     break;
                 default:
                     System.out.println("Escolha uma das opções apresentadas");

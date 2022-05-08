@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Server implements Runnable {
@@ -8,6 +9,7 @@ public class Server implements Runnable {
     private final ServerSocket server;
     //private final ServerSocket port_server;
     private  Protocol protocol = null;
+    private ArrayList <Client> clients;
 
     public Server ( int port ) throws IOException {
         server = new ServerSocket( port );
@@ -36,7 +38,7 @@ public class Server implements Runnable {
 
                 System.out.println(entrada);
 
-                ClientHandler clientHandler = new ClientHandler(protocol, client );
+                ClientHandler clientHandler = new ClientHandler(clients, client );
                 Thread thread = new Thread( clientHandler );
                 thread.start( );
             }

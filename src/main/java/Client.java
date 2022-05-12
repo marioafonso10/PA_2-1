@@ -1,15 +1,14 @@
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -27,13 +26,29 @@ public class Client {
     private final String userName;
 
     private final Protocol protocol;
-    private String key;
+    private SecretKey Secretkey;
+
+    public String getKey() {
+        return Key;
+    }
+
+    private String Key;
+
+    public void setKey(SecretKey Secretkey) {
+        this.Secretkey = Secretkey;
+    }
+
+    public SecretKey getSecretKey() {
+        return key;
+    }
+
+    private SecretKey key;
 
     public PrivateKey getPrivateKey() { return privateKey; }
     public PublicKey getPublicKey() {
         return publicKey;
     }
-    public String getKey() {return key;}
+
     public Protocol getProtocol() {
         return protocol;
     }
@@ -72,7 +87,7 @@ public class Client {
                 for ( int i = 0; i < userNames.size( ); i++ ) {
                     if (  userName.equals( userNames.get( i ) ) ) {
                         String key = null;
-                        byte[] messageEncrypted = protocol.encrypt( message.getBytes( StandardCharsets.UTF_8 ) ,privateKey, publicKey ,key );
+                        byte[] messageEncrypted = protocol.encrypt( message.getBytes( StandardCharsets.UTF_8 ) ,privateKey, publicKey ,key,Secretkey );
                         ArrayList<Object> messageWithReceiver = new ArrayList<>( 3 );
                         messageWithReceiver.add(0,"message");
                         messageWithReceiver.add( 1,userNames.get( i ) );
@@ -87,6 +102,10 @@ public class Client {
                 break;
             } catch ( NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException | InvalidKeyException e ) {
                 e.printStackTrace( );
+            } catch (InvalidAlgorithmParameterException e) {
+                e.printStackTrace();
+            } catch (InvalidKeySpecException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -97,7 +116,7 @@ public class Client {
                 for ( int i = 0; i < publicKeys.size( ); i++ ) {
                     if ( ! user.getUserName().equals( userNames.get( i ) ) ) {
                         String key = null;
-                        byte[] messageEncrypted = protocol.encrypt( data ,privateKey, publicKeys.get( i ), key   );
+                        byte[] messageEncrypted = protocol.encrypt( data ,privateKey, publicKeys.get( i ), key,Secretkey   );
                         ArrayList<Object> messageWithReceiver = new ArrayList<>( 2 );
                         messageWithReceiver.add( userNames.get( i ) );
                         messageWithReceiver.add( messageEncrypted );
@@ -109,6 +128,10 @@ public class Client {
                 closeConnection( );
             } catch ( NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException | InvalidKeyException e ) {
                 e.printStackTrace( );
+            } catch (InvalidAlgorithmParameterException e) {
+                e.printStackTrace();
+            } catch (InvalidKeySpecException e) {
+                e.printStackTrace();
             }
         }
         else  {
@@ -166,7 +189,7 @@ public class Client {
                         {
                             String key = null ;
                             String userName = getUserName();
-                            String messageDecrypted = new String( protocol.decrypt( message,key, privateKey,publicKey )   );
+                            String messageDecrypted = new String( protocol.decrypt( message,key, privateKey,publicKey,Secretkey )   );
                             //System.out.println( userName + ": " + messageDecrypted );
                             ArrayList <Client> destinatarios= MessageAnalizer(message);
                             if(!destinatarios.isEmpty()){

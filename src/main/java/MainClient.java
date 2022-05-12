@@ -1,3 +1,4 @@
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
@@ -32,9 +33,11 @@ public class MainClient {
                     break;
                 case "2":
                     escolha= true;
+
                     System.out.println("2DES");
                     Protocol doisDes = new doisDes();
                     Client client2 = new Client( "127.0.0.1" , 8000 , userName ,doisDes);
+                    client2.setKey(doisDes.generateDESkey());
                     client2.readMessages();
                     client2.sendMessages( );
                     break;

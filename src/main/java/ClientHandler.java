@@ -1,6 +1,7 @@
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -91,8 +92,8 @@ public class ClientHandler implements Runnable {
     }
 
 
-    public byte[] encryptMessage(Client client, byte[] message) throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, IOException, InvalidKeyException {
-        byte[] message_encrypted= client.getProtocol().encrypt(message,client.getPrivateKey(),client.getPublicKey(),client.getKey());//Todo: para fazer falta acrescentar ciração de keys no cliente e verificar restantes algoritmos de encypt
+    public byte[] encryptMessage(Client client, byte[] message, SecretKey key) throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, IOException, InvalidKeyException {
+        byte[] message_encrypted= client.getProtocol().encrypt(message,client.getPrivateKey(),client.getPublicKey(),client.getKey(), client.getProtocol().getSecretKey());//Todo: para fazer falta acrescentar ciração de keys no cliente e verificar restantes algoritmos de encypt
         return message_encrypted;
     }
 

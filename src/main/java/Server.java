@@ -1,6 +1,8 @@
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -22,25 +24,20 @@ public class Server implements Runnable {
         try {
             while ( ! server.isClosed( ) ) {
 
-
-                //Socket protocolos = server.accept();
-
-
                 Socket client = server.accept( ) ;
-
-
-                //Scanner entrada2 = new Scanner(protocolos.getInputStream()); //socket para protocolos
-
-                //tratar dados de protocolos (ie: adicionar a um array de clientes ?)
 
                 Scanner entrada = new Scanner(client.getInputStream());
 
 
                 System.out.println(entrada);
-
-                ClientHandler clientHandler = new ClientHandler(clients, client );
-                Thread thread = new Thread( clientHandler );
+                Protocol protocol= new AES();
+                Client default_client= new Client("127.0.0.1" , 8000 ,"default" ,protocol);
+                ClientHandler handler = new ClientHandler(default_client, client );
+                Thread thread = new Thread( handler );
                 thread.start( );
+
+
+
             }
         } catch ( IOException | ClassNotFoundException e ) {
             try {
@@ -48,6 +45,8 @@ public class Server implements Runnable {
             } catch ( IOException ex ) {
                 ex.printStackTrace( );
             }
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
         }
     }
 

@@ -13,11 +13,21 @@ import java.util.ArrayList;
 
 public class ClientHandler implements Runnable {
 
-    public static final ArrayList<ClientHandler> clientHandlers = new ArrayList<>( );
-    public static final ArrayList<String> userNames = new ArrayList<>( );
+    public static ArrayList<ClientHandler> getClientHandlers() {
+        return clientHandlers;
+    }
+
+    public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>( );
+    public static ArrayList<String> userNames = new ArrayList<>( );
 
     public static final ArrayList<PublicKey> publicKeys = new ArrayList<>( );
-   private ArrayList < Client> clients;
+
+    public Client getClient() {
+        return client;
+    }
+
+    private Client client;
+    private Protocol protocol;
     private final ObjectInputStream in;
     private final ObjectOutputStream out;
     private final String userName;
@@ -25,16 +35,15 @@ public class ClientHandler implements Runnable {
     private final Socket server;
     private final PublicKey publicKey;
 
-    public ClientHandler(ArrayList <Client> clients, Socket server) throws IOException, ClassNotFoundException {
-        this.clients=clients;
+    public ClientHandler(Client client, Socket server) throws IOException, ClassNotFoundException {
+        this.client=client;
         this.server = server;
         this.in = new ObjectInputStream( server.getInputStream( ) );
         this.out = new ObjectOutputStream( server.getOutputStream( ) );
-        this.userName = (String) in.readObject( );
-        this.publicKey = (PublicKey) in.readObject( );
+        this.userName = client.getUserName();
+        this.publicKey = client.getPublicKey();
+        this.protocol= client.getProtocol();
         clientHandlers.add( this );
-        userNames.add( userName );
-        publicKeys.add( publicKey );
         updateClientPublicKeys( );
     }
 
@@ -57,17 +66,14 @@ public class ClientHandler implements Runnable {
                 ArrayList<Object> messageWithReceiver = (ArrayList<Object>) in.readObject( );
                 String userNameReceived = (String) messageWithReceiver.get( 1 );
                 if(messageWithReceiver.get(0) =="handshake"){
-                    //cirar novo cliente com dados inseridos
+                    Protocol AES= new AES(); //TODO retirar após ler do handshake!!!!!
+                    //TODO para completar handshake temos de completar primeiro o handshake do lado do cliente
+
+                    Client new_client= new Client("127.0.0.1" , 8000 , userName ,AES);
                 }
                 else{
 
-                    byte[] message= decryptMessage(messageWithReceiver);
-                    // criar função que lê a mensagem e redireciona para os destinatários
-                    for (Client x:clients) {
-
-                    }
-
-                    broadcastMessage( userNameReceived , message );
+                    broadcastMessage(decryptMessage(messageWithReceiver), (String) messageWithReceiver.get(1));// Todo verificar logica e funcionamento !!
                 }
 
             } catch ( IOException | ClassNotFoundException e ) {
@@ -84,15 +90,19 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    
+
+    public byte[] encryptMessage(Client client, byte[] message) throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, IOException, InvalidKeyException {
+        byte[] message_encrypted= client.getProtocol().encrypt(message,client.getPrivateKey(),client.getPublicKey(),client.getKey());//Todo: para fazer falta acrescentar ciração de keys no cliente e verificar restantes algoritmos de encypt
+        return message_encrypted;
+    }
 
     public byte[] decryptMessage(ArrayList<Object> messageWithReceiver) throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, IOException, InvalidKeyException {
         byte[] message = (byte[]) messageWithReceiver.get( 2 );
-        for (Client c:clients) {
-            if(messageWithReceiver.get(1)== c.getUserName()){
-                PrivateKey privateKey= null;
+        for (ClientHandler clientHandler: clientHandlers) {
+            if(messageWithReceiver.get(1)== clientHandler.getUserName()){
+                PrivateKey privateKey= null;// TODO: DUVIDA  como aceder as variaveis necessárias? getters? (apesar de serem privadas ou nao)
                 String key=null;
-                message =c.getProtocol().decrypt(message,key,privateKey,c.getPublicKey());//TODO : melhorar maneira de aceder aos  ecnrypt de cada protocolo
+                message =clientHandler.getClient().getProtocol().decrypt(message,key,privateKey,clientHandler.getClient().getPublicKey());//TODO : melhorar maneira de aceder aos  ecnrypt de cada protocolo
             }
         }
         return message;
@@ -107,26 +117,32 @@ public class ClientHandler implements Runnable {
         out.close( );
     }
 
-    public void broadcastMessage ( String userNameReceived , byte[] message ) throws IOException {// TODO: modificar para receber array e mandar mensagem para todos encriptada segundo o seu Protocolo
-        for ( ClientHandler client : clientHandlers ) {
-            if ( client.getUserName( ).equals( userNameReceived ) ) {
-                try {
-                    ArrayList<Object> messageWithUserName = new ArrayList<>( 2 );
-                    messageWithUserName.add( this.userName );
-                    messageWithUserName.add( message );
-                    client.out.writeObject( messageWithUserName );
-                    client.out.flush( );
-                } catch ( IOException e ) {
-                    removeClient( client );
+    public void broadcastMessage ( byte[] message,String user ) throws IOException {// TODO: modificar para receber array e mandar mensagem para todos encriptada segundo o seu Protocolo
+        for ( ClientHandler client : clientHandlers ) {// TODO: DUVIDA como aceder aqui a cliente/ se é possivel trabalhar com os clientHandlers?
+                if(client.userName!= user) {
+                    try {
+                        ArrayList<Object> messageWithUserName = new ArrayList<>(2);
+                        messageWithUserName.add(0, this.userName);
+                        byte[] encrypted_message = encryptMessage(client.getClient(), message);
+                        messageWithUserName.add(1, encrypted_message);
+                        client.out.writeObject(messageWithUserName);
+                        client.out.flush();
+
+
+                    } catch (IOException e) {
+                        removeClient(client);
+                    } catch (NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
+
         }
     }
     public void groupMessage(){ //TODO:Criar metodo que recebe so recebe mensagem e envia para o grupo de pessoas nela indicado
 
     }
     public void handshakeConfirm(){
-
+            ClientHandler handler= new ClientHandler();
     }
 
 

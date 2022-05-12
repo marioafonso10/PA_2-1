@@ -21,22 +21,22 @@ public class Client {
     private static final ArrayList<String> userNames = new ArrayList<>( );
     private final Socket client;
     private PrivateKey privateKey;
-
-    public PublicKey getPublicKey() {
-        return publicKey;
-    }
-
     private PublicKey publicKey;
     private final ObjectInputStream in;
     private final ObjectOutputStream out;
     private final String userName;
 
+    private final Protocol protocol;
+    private String key;
+
+    public PrivateKey getPrivateKey() { return privateKey; }
+    public PublicKey getPublicKey() {
+        return publicKey;
+    }
+    public String getKey() {return key;}
     public Protocol getProtocol() {
         return protocol;
     }
-
-    private final Protocol protocol;
-
     public String getUserName() {
         return userName;
     }
@@ -69,7 +69,7 @@ public class Client {
             String message = usrInput.nextLine( );
 
             try {
-                for ( int i = 0; i < publicKeys.size( ); i++ ) {
+                for ( int i = 0; i < userNames.size( ); i++ ) {
                     if (  userName.equals( userNames.get( i ) ) ) {
                         String key = null;
                         byte[] messageEncrypted = protocol.encrypt( message.getBytes( StandardCharsets.UTF_8 ) ,privateKey, publicKey ,key );
@@ -117,11 +117,12 @@ public class Client {
     }
 
 
-    public void readMessages () {
+  /*  public void readMessages () {
         new Thread(() -> {
             while (client.isConnected()) {
                 try {
-                    Object message = in.readObject();
+                        ArrayList<Object> messageWithReceiver = new ArrayList<>( 3 );
+                        messageWithReceiver= client.getInputStream();
                     if (message instanceof String) {
                         if (message.equals("UPDATE_PUBLIC_KEYS")) {
                             int numberOfClients = (int) in.readObject();
@@ -154,8 +155,11 @@ public class Client {
             }
         }).start();
     }
-    
+    */
     public void readMessage(byte[] message){
+
+        //String msg = new String(message);
+
             new Thread( () -> {
                 while ( client.isConnected( ) ) {
                     try {
@@ -164,7 +168,7 @@ public class Client {
                             String userName = getUserName();
                             String messageDecrypted = new String( protocol.decrypt( message,key, privateKey,publicKey )   );
                             //System.out.println( userName + ": " + messageDecrypted );
-                            ArrayList <Client> destinatarios= groupMessageAnalizer(message);
+                            ArrayList <Client> destinatarios= MessageAnalizer(message);
                             if(!destinatarios.isEmpty()){
                                 //TODO:envia para x destinatarios
                                 for (Client z:destinatarios) {
@@ -189,9 +193,10 @@ public class Client {
                 }
             } ).start( );
         }
-        public ArrayList <Client> groupMessageAnalizer(byte[] message){
+        public ArrayList <Client> MessageAnalizer(byte[] message){
         ArrayList <Client> clientes = null;
-            if( String.valueOf(message[0])=="@"){
+        String messageS= new String(message);
+            if( messageS.startsWith("@")){//Todo: Mario
                 // percorrer mensagem e ler os varios destinatarios para quem vai ser direcionada a mensagem 
             }
             return clientes;

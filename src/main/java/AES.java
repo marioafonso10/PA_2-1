@@ -34,15 +34,9 @@ public class AES extends Protocol{
     public byte[] encrypt(byte[] message ,PrivateKey privateKey, PublicKey publicKey , String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
         Cipher cipher = Cipher.getInstance( "AES" );
         SecretKeySpec secretKeySpec = new SecretKeySpec( key.getBytes( StandardCharsets.UTF_8 ) , "AES" );
-
         cipher.init( Cipher.ENCRYPT_MODE , secretKeySpec );
-        ArrayList<byte[]> textSplits = splitText( message , 15 , AES.ENCRYPT_MODE );
-        ByteArrayOutputStream output = new ByteArrayOutputStream( );
-        for ( byte[] textSplit : textSplits ) {
-            byte[] textEncrypted = cipher.doFinal( textSplit );
-            output.write( textEncrypted );
-        }
-        return output.toByteArray( );
+
+        return cipher.doFinal(message);
     }
 
 

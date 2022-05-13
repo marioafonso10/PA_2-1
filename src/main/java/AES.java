@@ -25,7 +25,7 @@ public class AES extends Protocol{
     }
 
     @Override
-    public byte[] encrypt(byte[] message, PrivateKey privateKey, PublicKey publicKey, String key, SecretKey secretKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
+    public byte[] encrypt(byte[] message, PublicKey publicKey, String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
         Cipher cipher = Cipher.getInstance( "AES" );
         SecretKeySpec secretKeySpec = new SecretKeySpec( key.getBytes( StandardCharsets.UTF_8 ) , "AES" );
         cipher.init( Cipher.ENCRYPT_MODE , secretKeySpec );
@@ -35,7 +35,7 @@ public class AES extends Protocol{
 
 
     @Override
-    public byte[] decrypt(byte[] message, String key,PrivateKey privateKey,PublicKey publicKey,SecretKey secretKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
+    public byte[] decrypt(byte[] message, String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
         Cipher cipher = Cipher.getInstance( "AES" );
         SecretKeySpec secretKeySpec = new SecretKeySpec( key.getBytes( StandardCharsets.UTF_8 ) , "AES" );
         cipher.init( Cipher.DECRYPT_MODE , secretKeySpec );

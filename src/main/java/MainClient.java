@@ -1,4 +1,3 @@
-import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
@@ -14,8 +13,7 @@ public class MainClient {
         System.out.println( "Escolho protocolo de encriptação a ser utilizado: \n" +
                 "1-AES \n" +
                 "2-2DES \n" +
-                "3-3DES \n" +
-                "4-RSA" );
+                "3-RSA" );
         String protocol = usrInput.nextLine( );
             switch(protocol){
                 case "1":
@@ -35,21 +33,14 @@ public class MainClient {
                     escolha= true;
 
                     System.out.println("2DES");
-                    Protocol doisDes = new doisDes();
-                    Client client2 = new Client( "127.0.0.1" , 8000 , userName ,doisDes);
-                    client2.setKey(doisDes.generateDESkey());
+                    Protocol Des = new Des();
+                    Client client2 = new Client( "127.0.0.1" , 8000 , userName ,Des);
+                    //client2.setKey(Des.generateDESkey());
                     client2.readMessages();
                     client2.sendMessages( );
                     break;
+
                 case "3":
-                    escolha= true;
-                    System.out.println("3DES");
-                    Protocol tresDes = new tresDes();
-                    Client client3 = new Client( "127.0.0.1" , 8000 , userName ,tresDes);
-                    client3.readMessages( );
-                    client3.sendMessages( );
-                    break;
-                case "4":
                     escolha= true;
                     System.out.println("RSA");
                     Protocol RSA = new RSA();

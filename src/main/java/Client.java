@@ -110,34 +110,7 @@ public class Client {
         }
     }
 
-    public void sendOneMessage( byte[] data, Client user) throws IOException {
-        if ( client.isConnected( ) ) {
-            try {
-                for ( int i = 0; i < publicKeys.size( ); i++ ) {
-                    if ( ! user.getUserName().equals( userNames.get( i ) ) ) {
-                        String key = null;
-                        byte[] messageEncrypted = protocol.encrypt( data ,privateKey, publicKeys.get( i ), key,Secretkey   );
-                        ArrayList<Object> messageWithReceiver = new ArrayList<>( 2 );
-                        messageWithReceiver.add( userNames.get( i ) );
-                        messageWithReceiver.add( messageEncrypted );
-                        out.writeObject( messageWithReceiver );
-                        //out.writeObject(protocol);
-                    }
-                }
-            } catch ( IOException e ) {
-                closeConnection( );
-            } catch ( NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException | InvalidKeyException e ) {
-                e.printStackTrace( );
-            } catch (InvalidAlgorithmParameterException e) {
-                e.printStackTrace();
-            } catch (InvalidKeySpecException e) {
-                e.printStackTrace();
-            }
-        }
-        else  {
-            System.out.println("Client is not connected");
-        }
-    }
+
 
 
   /*  public void readMessages () {

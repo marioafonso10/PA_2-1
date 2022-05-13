@@ -6,10 +6,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 
 public class ClientHandler implements Runnable {
@@ -103,7 +101,7 @@ public class ClientHandler implements Runnable {
             if(messageWithReceiver.get(1)== clientHandler.getUserName()){
                 PrivateKey privateKey= null;// TODO: DUVIDA  como aceder as variaveis necessárias? getters? (apesar de serem privadas ou nao)
                 String key=null;
-                message =clientHandler.getClient().getProtocol().decrypt(message,key,privateKey,clientHandler.getClient().getPublicKey());//TODO : melhorar maneira de aceder aos  ecnrypt de cada protocolo
+                message =clientHandler.getClient().getProtocol().decrypt(message,clientHandler.getClient().getKey(),clientHandler.getClient().getPrivateKey(),clientHandler.getClient().getPublicKey(),clientHandler.getClient().getSecretKey());//TODO : melhorar maneira de aceder aos  ecnrypt de cada protocolo
             }
         }
         return message;
@@ -146,7 +144,34 @@ public class ClientHandler implements Runnable {
             ClientHandler handler= new ClientHandler();
     }
 
-
+    public void sendOneMessage( byte[] data, Client user) throws IOException {
+        if ( server.isConnected( ) ) {
+            try {
+                for ( int i = 0; i < publicKeys.size( ); i++ ) {
+                    if ( ! user.getUserName().equals( userNames.get( i ) ) ) {
+                        String key = null;
+                        byte[] messageEncrypted = protocol.encrypt( data , this.getClient().getProtocol(), publicKeys.get( i ), key,Secretkey   );
+                        ArrayList<Object> messageWithReceiver = new ArrayList<>( 2 );
+                        messageWithReceiver.add( userNames.get( i ) );
+                        messageWithReceiver.add( messageEncrypted );
+                        out.writeObject( messageWithReceiver );
+                        //out.writeObject(protocol);
+                    }
+                }
+            } catch ( IOException e ) {
+                closeConnection( );
+            } catch ( NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException | InvalidKeyException e ) {
+                e.printStackTrace( );
+            } catch (InvalidAlgorithmParameterException e) {
+                e.printStackTrace();
+            } catch (InvalidKeySpecException e) {
+                e.printStackTrace();
+            }
+        }
+        else  {
+            System.out.println("Client is not connected");
+        }
+    }
 
 
     public String getUserName () {

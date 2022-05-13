@@ -9,9 +9,9 @@ import java.security.spec.InvalidKeySpecException;
 abstract class Protocol { //TODO: Terminar definição dos protocolos (cada Algoritmo)
     public abstract PrivateKey generateKeyPair () throws NoSuchAlgorithmException;
 
-    public abstract byte[] encrypt(byte[] message, PrivateKey privateKey, PublicKey publicKey, String key, SecretKey secretKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, InvalidKeySpecException, InvalidAlgorithmParameterException;
+    public byte[] encrypt ( byte[] message, PublicKey publicKey,String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
 
-    public abstract byte[] decrypt(byte[] message, String key,PrivateKey privateKey,PublicKey publicKey,SecretKey secretKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,IOException;
+    public byte[] decrypt (byte[] message,String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,IOException {
 
     public abstract PublicKey getPublicKey();
 

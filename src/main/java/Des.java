@@ -7,12 +7,14 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class doisDes extends Protocol {
-    public SecretKey getSecretKey() {
-        return k1;
-    }
+public class Des extends Protocol {
+    private SecretKey secretKey;
 
 
+
+public Des(){
+    generateDESkey();
+}
 
 
     @Override
@@ -27,17 +29,17 @@ public class doisDes extends Protocol {
         } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(VectorOperators.Test.class.getName()).log(Level.SEVERE, null, ex);
         }
-        keyGen.init(112); // key length 112 for two keys, 168 for three keys
-        SecretKey secretKey = keyGen.generateKey();
+        keyGen.init(56); // key length 112 for two keys, 168 for three keys
+        this.secretKey = keyGen.generateKey();
         return secretKey;
     }
 
 
     @Override
-    public byte[] encrypt(byte[] message, PrivateKey privateKey, PublicKey publicKey, String key, SecretKey secretKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, InvalidKeySpecException, InvalidAlgorithmParameterException throws NoSuchPaddingException, NoSuchAlgorithmException throws IllegalBlockSizeException, BadPaddingException {
+    public byte[] encrypt(byte[] message, PublicKey publicKey, String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, InvalidKeySpecException, InvalidAlgorithmParameterException throws NoSuchPaddingException, NoSuchAlgorithmException throws IllegalBlockSizeException, BadPaddingException {
         Cipher cipher = Cipher.getInstance( "DESede/ECB/PKCS5Padding" );
         SecretKey k1 = generateDESkey();
-        cipher.init( Cipher.ENCRYPT_MODE , k1 );
+        cipher.init( Cipher.ENCRYPT_MODE , secretKey );
         return cipher.doFinal(message);
     }
 
@@ -45,10 +47,10 @@ public class doisDes extends Protocol {
 
 
     @Override
-    public byte[] decrypt(byte[] message, String key,PrivateKey privateKey,PublicKey publicKey,SecretKey secretKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
+    public byte[] decrypt(byte[] message, String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
         Cipher cipher = Cipher.getInstance( "DESede/ECB/PKCS5Padding" );
         SecretKey k1 = generateDESkey();
-        cipher.init( Cipher.DECRYPT_MODE , k1 );
+        cipher.init( Cipher.DECRYPT_MODE , secretKey);
         return cipher.doFinal(message);
     }
 

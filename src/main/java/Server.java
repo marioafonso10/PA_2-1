@@ -32,7 +32,7 @@ public class Server implements Runnable {
                 System.out.println(entrada);
                 Protocol protocol= new AES();
                 Client default_client= new Client("127.0.0.1" , 8000 ,"default" ,protocol);
-                ClientHandler handler = new ClientHandler(default_client, client );
+                ClientHandler handler = new ClientHandler( client );
                 Thread thread = new Thread( handler );
                 thread.start( );
 

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 
-abstract class Protocol { //TODO: Terminar definição dos protocolos (cada Algoritmo)
+abstract class Protocol {
     public abstract PrivateKey generateKeyPair () throws NoSuchAlgorithmException;
 
     public abstract byte[] encrypt ( byte[] message, PublicKey publicKey,String key) throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException;

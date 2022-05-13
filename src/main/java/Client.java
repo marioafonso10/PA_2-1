@@ -26,23 +26,24 @@ public class Client {
     private final String userName;
 
     private final Protocol protocol;
-    private SecretKey Secretkey;
+    private SecretKey secretkey;
 
     public String getKey() {
         return Key;
     }
 
-    private String Key;
+    private String Key=null;
 
-    public void setKey(SecretKey Secretkey) {
-        this.Secretkey = Secretkey;
+    public void setSecretkey(SecretKey secretkey) {
+        this.secretkey = secretkey;
     }
 
     public SecretKey getSecretKey() {
-        return key;
+
+        return this.secretkey;
     }
 
-    private SecretKey key;
+    //private SecretKey key;
 
     public PrivateKey getPrivateKey() { return privateKey; }
     public PublicKey getPublicKey() {
@@ -74,39 +75,38 @@ public class Client {
         ArrayList<Object> message = new ArrayList<>( 3 );
         message.add(0,"handshake");
         message.add( 1,userName );
-        message.add(2,setup_protocolos);
+        message.add(2,this);
         out.writeObject( message );
     }
 
-    public void sendMessages () throws IOException {
-        while ( client.isConnected( ) ) {
-            Scanner usrInput = new Scanner( System.in );
-            String message = usrInput.nextLine( );
-
+    public void sendOneMessage( byte[] data, Client user) throws IOException {
+        if (client.isConnected()) {
             try {
-                for ( int i = 0; i < userNames.size( ); i++ ) {
-                    if (  userName.equals( userNames.get( i ) ) ) {
-                        String key = null;
-                        byte[] messageEncrypted = protocol.encrypt( message.getBytes( StandardCharsets.UTF_8 ) ,privateKey, publicKey ,key,Secretkey );
-                        ArrayList<Object> messageWithReceiver = new ArrayList<>( 3 );
-                        messageWithReceiver.add(0,"message");
-                        messageWithReceiver.add( 1,userNames.get( i ) );
-                        messageWithReceiver.add(2, messageEncrypted );
-                        out.writeObject( messageWithReceiver );
-                        //out.writeObject(protocol);
+                System.out.println("Client is connected");
 
-                }
-            }
-            }catch ( IOException e ) {
-                closeConnection( );
-                break;
-            } catch ( NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException | InvalidKeyException e ) {
-                e.printStackTrace( );
-            } catch (InvalidAlgorithmParameterException e) {
+                byte[] messageEncrypted = protocol.encrypt(data, user.getPublicKey(), user.getKey());
+                ArrayList<Object> messageWithReceiver = new ArrayList<>(2);
+                messageWithReceiver.add(user.getUserName());
+                messageWithReceiver.add(messageEncrypted);
+                out.writeObject(messageWithReceiver);
+                //out.writeObject(protocol);
+
+
+            } catch (NoSuchPaddingException e) {
                 e.printStackTrace();
-            } catch (InvalidKeySpecException e) {
+            } catch (IllegalBlockSizeException e) {
+                e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (BadPaddingException e) {
+                e.printStackTrace();
+            } catch (InvalidKeyException e) {
                 e.printStackTrace();
             }
+
+        }
+        else {
+            System.out.println("Client is not connected");
         }
     }
 
@@ -193,7 +193,9 @@ public class Client {
         ArrayList <Client> clientes = null;
         String messageS= new String(message);
             if( messageS.startsWith("@")){//Todo: Mario
-                // percorrer mensagem e ler os varios destinatarios para quem vai ser direcionada a mensagem 
+
+
+
             }
             return clientes;
         }

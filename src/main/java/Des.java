@@ -16,12 +16,23 @@ public Des(){
     generateDESkey();
 }
 
+    public SecretKey getSecretKey() {
+
+        return this.secretKey;
+    }
+
+    @Override
+    public String getKey() {
+        return null;
+    }
 
     @Override
     public PrivateKey generateKeyPair() throws NoSuchAlgorithmException {
         PrivateKey privateKey=null;
         return privateKey;
     }
+
+
     public SecretKey  generateDESkey() {
         KeyGenerator keyGen = null;
         try {
@@ -36,10 +47,10 @@ public Des(){
 
 
     @Override
-    public byte[] encrypt(byte[] message, PublicKey publicKey, String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, InvalidKeySpecException, InvalidAlgorithmParameterException throws NoSuchPaddingException, NoSuchAlgorithmException throws IllegalBlockSizeException, BadPaddingException {
+    public byte[] encrypt(byte[] message, PublicKey publicKey, String key)throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         Cipher cipher = Cipher.getInstance( "DESede/ECB/PKCS5Padding" );
         SecretKey k1 = generateDESkey();
-        cipher.init( Cipher.ENCRYPT_MODE , secretKey );
+        cipher.init( Cipher.ENCRYPT_MODE , this.secretKey );
         return cipher.doFinal(message);
     }
 
@@ -47,7 +58,7 @@ public Des(){
 
 
     @Override
-    public byte[] decrypt(byte[] message, String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
+    public byte[] decrypt(byte[] message, String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
         Cipher cipher = Cipher.getInstance( "DESede/ECB/PKCS5Padding" );
         SecretKey k1 = generateDESkey();
         cipher.init( Cipher.DECRYPT_MODE , secretKey);

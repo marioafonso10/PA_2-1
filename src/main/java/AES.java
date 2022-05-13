@@ -14,10 +14,12 @@ import java.security.PublicKey;
 
 public class AES extends Protocol{
 
-    private String protocolo="";// como aceder a tamanho da chave
+    private String key = "hWmZq4t7w!z%C*F-";// como aceder a tamanho da chave
+
     public String getKey(){
-        return´´
+        return key;
     }
+
     @Override
     public PrivateKey generateKeyPair() {
         PrivateKey privateKey=null;
@@ -25,7 +27,7 @@ public class AES extends Protocol{
     }
 
     @Override
-    public byte[] encrypt(byte[] message, PublicKey publicKey, String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
+    public byte[] encrypt(byte[] message, PublicKey publicKey, String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         Cipher cipher = Cipher.getInstance( "AES" );
         SecretKeySpec secretKeySpec = new SecretKeySpec( key.getBytes( StandardCharsets.UTF_8 ) , "AES" );
         cipher.init( Cipher.ENCRYPT_MODE , secretKeySpec );
@@ -35,7 +37,7 @@ public class AES extends Protocol{
 
 
     @Override
-    public byte[] decrypt(byte[] message, String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
+    public byte[] decrypt(byte[] message, String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         Cipher cipher = Cipher.getInstance( "AES" );
         SecretKeySpec secretKeySpec = new SecretKeySpec( key.getBytes( StandardCharsets.UTF_8 ) , "AES" );
         cipher.init( Cipher.DECRYPT_MODE , secretKeySpec );
@@ -51,7 +53,9 @@ public class AES extends Protocol{
     }
 
     @Override
-    public String toString() {
-        return protocolo;
+    public SecretKey getSecretKey() {
+        return null;
     }
+
+
 }

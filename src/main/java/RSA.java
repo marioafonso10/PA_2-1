@@ -23,7 +23,7 @@ public class RSA extends Protocol {
 
 
     @Override
-    public byte[] encrypt ( byte[] message, PublicKey publicKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
+    public byte[] encrypt ( byte[] message, PublicKey publicKey,String key) throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         String protocol= "RSA";
         Cipher cipher = Cipher.getInstance( protocol );
         cipher.init( Cipher.ENCRYPT_MODE , publicKey );
@@ -32,7 +32,7 @@ public class RSA extends Protocol {
 
 
     @Override
-    public byte[] decrypt (byte[] message) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,IOException {
+    public byte[] decrypt (byte[] message,String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         Cipher cipher = Cipher.getInstance( "RSA" );
         cipher.init( Cipher.DECRYPT_MODE , this.privateKey );
         return cipher.doFinal( message );
@@ -40,6 +40,15 @@ public class RSA extends Protocol {
     @Override
     public PublicKey getPublicKey () {
         return publicKey;
+    }
+
+    @Override
+    public SecretKey getSecretKey() {
+        return null;
+    }
+
+    public String getKey(){
+        return null;
     }
 
 

@@ -12,7 +12,7 @@ public class MainClient {
         while(!escolha){
         System.out.println( "Escolho protocolo de encriptação a ser utilizado: \n" +
                 "1-AES \n" +
-                "2-2DES \n" +
+                "2-DES \n" +
                 "3-RSA" );
         String protocol = usrInput.nextLine( );
             switch(protocol){
@@ -20,9 +20,8 @@ public class MainClient {
                     escolha= true;
                     System.out.println("AES");
                     Protocol AES = new AES();
-                    System.out.println (AES) ;
                     Client client1 = new Client( "127.0.0.1" , 8000 , userName ,AES);
-
+                    ClientHandler Handler= new ClientHandler(client1,);
                     String dados=  client1.getUserName() + "XXXX" + AES ;
 
                    // client1.sendProtocol(dados);
@@ -35,7 +34,8 @@ public class MainClient {
                     System.out.println("2DES");
                     Protocol Des = new Des();
                     Client client2 = new Client( "127.0.0.1" , 8000 , userName ,Des);
-                    //client2.setKey(Des.generateDESkey());
+
+                    client2.setSecretkey(Des.getSecretKey());
                     client2.readMessages();
                     client2.sendMessages( );
                     break;

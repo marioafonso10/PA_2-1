@@ -102,16 +102,32 @@ public class ClientHandler implements Runnable {
                 ArrayList<Object> messageWithReceiver = (ArrayList<Object>) in.readObject( );
                 String userNameReceived = (String) messageWithReceiver.get( 1 );
                 if(messageWithReceiver.get(0) =="handshake"){
-
                     handshakeConfirm( messageWithReceiver );
-
-
                 }
-                else{
-
-                    broadcastMessage(decryptMessage(messageWithReceiver), (String) messageWithReceiver.get(1));
+                else {
+                    byte[] decryptedMessage = new byte[0];
+                    for (ClientHandler handler : clientHandlers) {
+                        if (handler.userName == messageWithReceiver.get(1)) {
+                            decryptedMessage = handler.decryptMessage((ArrayList<Object>) messageWithReceiver.get(2));
+                        }
+                    }
+                    ArrayList<String> Users= MessageAnalizer(decryptedMessage);
+                    if(!Users.isEmpty()){
+                        for (ClientHandler h:clientHandlers) {
+                            for (String s:Users) {
+                                if(s== h.getUserName()){
+                                    ArrayList<Object> message= new ArrayList<Object>(2 );
+                                    message.add(0,h.getUserName());
+                                    message.add(1,h.encryptMessage(h,decryptedMessage,h.getSecretkey()));
+                                    out.writeObject(message);
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        broadcastMessage(decryptedMessage, (String) messageWithReceiver.get(1));
+                    }
                 }
-
             } catch ( IOException | ClassNotFoundException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e ) {
                 e.printStackTrace();
             }
@@ -154,9 +170,35 @@ public class ClientHandler implements Runnable {
 
         }
     }
-    public void groupMessage(){ //TODO:Criar metodo que recebe so recebe mensagem e envia para o grupo de pessoas nela indicado
+    public ArrayList <String> MessageAnalizer(byte[] message){
+        String messageS= new String(message);
+        ArrayList<String> UserNames= new ArrayList<>();
+        if( messageS.startsWith("@")){
+            int begin=0;
+            int end=0;
+            int i = 0;
 
+            String users= messageS.substring(0,messageS.indexOf(" "));
+            users= users.replace("@","");
+            users= users.replace(","," ");
+            users= users+" ";
+            //System.out.println(users);
+            while(i<users.length()){
+                if(i==users.indexOf(" ",i)){
+
+                    //System.out.println(users.substring(begin,i));
+                    UserNames.add(users.substring(begin,i));
+
+                    //System.out.println(i);
+                    begin=i;
+                }
+                i++;
+            }
+            System.out.println(UserNames);
+        }
+        return UserNames;
     }
+
     public void handshakeConfirm(ArrayList<Object> messageWithReceiver ) throws IOException, ClassNotFoundException {
 
         ClientHandler handler= new ClientHandler(server);

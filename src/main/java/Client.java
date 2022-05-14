@@ -180,17 +180,7 @@ public class Client {
 
     }
 
-        public ArrayList <Client> MessageAnalizer(byte[] message){
-            ArrayList<String> usernames= new ArrayList<>();
-        ArrayList <Client> clientes = null;
-        String messageS= new String(message);
-            if( messageS.startsWith("@")){//Todo: isto
 
-
-
-            }
-            return clientes;
-        }
 
     private void closeConnection () throws IOException {
         client.close( );

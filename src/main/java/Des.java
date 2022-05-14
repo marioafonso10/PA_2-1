@@ -1,4 +1,4 @@
-import jdk.incubator.vector.VectorOperators;
+//import jdk.incubator.vector.VectorOperators;
 
 import javax.crypto.*;
 import java.io.IOException;
@@ -38,9 +38,10 @@ public Des(){
         try {
             keyGen = KeyGenerator.getInstance("DESede");
         } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(VectorOperators.Test.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(VectorOperators.Test.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
-        keyGen.init(56); // key length 112 for two keys, 168 for three keys
+        keyGen.init(112); // key length 112 for two keys, 168 for three keys
         this.secretKey = keyGen.generateKey();
         return secretKey;
     }

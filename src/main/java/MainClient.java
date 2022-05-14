@@ -16,13 +16,14 @@ public class MainClient {
                 "2-DES \n" +
                 "3-RSA" );
         String protocol = usrInput.nextLine( );
+        Socket server= new Socket("127.0.0.1",8000);
             switch(protocol){
                 case "1":
                     escolha= true;
                     System.out.println("AES");
                     Protocol AES = new AES();
                     Client client1 = new Client( "127.0.0.1" , 8000 , userName ,AES);
-                    //ClientHandler Handler= new ClientHandler();//todo adicionar criação de handler para todos os tipos de clientes!!!!
+                    ClientHandler Handler= new ClientHandler(server);//todo adicionar criação de handler para todos os tipos de clientes!!!!
                     String dados=  client1.getUserName() + "XXXX" + AES ;
 
                     client1.Handshake();

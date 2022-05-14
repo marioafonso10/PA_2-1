@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.security.*;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -131,9 +132,9 @@ public class Client {
                     String userName = (String) messageWithUserName.get(0);
                     if (userName == this.getUserName()) {
 
-                        byte[] messageEncrpted = (byte[]) messageWithUserName.get(1);
-                        getProtocol().decrypt(messageEncrpted, this.getKey());
-                        System.out.println(userName + ": " + messageEncrpted);
+                    byte[] messageEncrpted = (byte[]) messageWithUserName.get(1);
+                    getProtocol().decrypt(messageEncrpted, this.getKey());
+                    System.out.println(userName + ": " + messageEncrpted);
                     }
                 } catch (IOException | ClassNotFoundException e) {
                     try {
@@ -158,16 +159,24 @@ public class Client {
     }
 
     public void sendMessages () throws IOException {//todo isto
-        while ( client.isConnected( ) ) {
-            Scanner usrInput = new Scanner( System.in );
-            String message = usrInput.nextLine( );
-            try {
-                out.writeObject(  message );
-            } catch ( IOException e ) {
-                closeConnection( );
-                break;
+        new Thread(()->{
+            while ( client.isConnected( ) ) {
+                Scanner usrInput = new Scanner(System.in);
+                String message = usrInput.nextLine();
+                ;
+                ArrayList<Object> messageWithUserName = new ArrayList<>(3);
+                messageWithUserName.add(0, "messsage");
+                try {
+                    byte[] encryptedMessage = this.getProtocol().encrypt(message.getBytes(Charset.forName("UTF-8")), this.getPublicKey(), this.getKey());
+                    messageWithUserName.add(1, encryptedMessage);
+                    messageWithUserName.add(2,encryptedMessage);
+                    out.writeObject(message);
+                } catch (NoSuchPaddingException | NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException | InvalidKeyException | IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }
+        }).start();
+
 
     }
 

@@ -23,7 +23,9 @@ public class MainClient {
                     System.out.println("AES");
                     Protocol AES = new AES();
                     Client client1 = new Client( "127.0.0.1" , 8000 , userName ,AES);
+                    ClientHandler handler= new ClientHandler(server);
                     client1.Handshake();
+                    //handler.handshakeConfirm();
                     client1.HandshakeConfirm();
                     client1.readMessages();
                     client1.sendMessages();

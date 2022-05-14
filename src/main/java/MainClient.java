@@ -23,9 +23,6 @@ public class MainClient {
                     System.out.println("AES");
                     Protocol AES = new AES();
                     Client client1 = new Client( "127.0.0.1" , 8000 , userName ,AES);
-                    ClientHandler Handler= new ClientHandler(server);//todo adicionar criação de handler para todos os tipos de clientes!!!!
-                    String dados=  client1.getUserName() + "XXXX" + AES ;
-
                     client1.Handshake();
                     client1.HandshakeConfirm();
                     client1.readMessages();
@@ -37,7 +34,6 @@ public class MainClient {
                     System.out.println("2DES");
                     Protocol Des = new Des();
                     Client client2 = new Client( "127.0.0.1" , 8000 , userName ,Des);
-
                     client2.setSecretkey(Des.getSecretKey());
                     client2.Handshake();
                     client2.HandshakeConfirm();
@@ -50,6 +46,8 @@ public class MainClient {
                     System.out.println("RSA");
                     Protocol RSA = new RSA();
                     Client client4 = new Client( "127.0.0.1" , 8000 , userName ,RSA );
+                    client4.Handshake();
+                    client4.HandshakeConfirm();
                     client4.readMessages( );
                     client4.sendMessages( );
                     break;

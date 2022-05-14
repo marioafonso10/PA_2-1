@@ -66,10 +66,11 @@ public class Client {
         this.publicKey = protocol.getPublicKey();
         this.userName = userName;
         this.protocol = protocol;
+        this.Key= protocol.getKey();
         out = new ObjectOutputStream(client.getOutputStream());
         in = new ObjectInputStream(client.getInputStream());
-        out.writeObject(userName);
-        out.writeObject(protocol.getPublicKey());
+        //out.writeObject(userName);
+        //out.writeObject(protocol.getPublicKey());
     }
 
 

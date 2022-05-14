@@ -163,7 +163,7 @@ public class Client {
             while ( client.isConnected( ) ) {
                 Scanner usrInput = new Scanner(System.in);
                 String message = usrInput.nextLine();
-                ;
+
                 ArrayList<Object> messageWithUserName = new ArrayList<>(3);
                 messageWithUserName.add(0, "messsage");
                 try {
@@ -181,6 +181,7 @@ public class Client {
     }
 
         public ArrayList <Client> MessageAnalizer(byte[] message){
+            ArrayList<String> usernames= new ArrayList<>();
         ArrayList <Client> clientes = null;
         String messageS= new String(message);
             if( messageS.startsWith("@")){//Todo: isto
